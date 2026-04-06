@@ -188,7 +188,28 @@ actionable_advice 的建議必須依以下優先序排列：
 · weaknesses：2 至 3 項最關鍵的 ATS 扣分項，只列真正影響競爭力者，勿強行湊數
 · actionable_advice：2 至 3 項具體改善步驟，依 Step 3 優先序排列，非泛用模板
 · fact_check_issues：0 至 3 項明確的事實錯誤或遺漏；若無問題則回傳空陣列 []
-· transferable_skills：0 至 3 項跨產業核心職能，每項需附上履歷中的依據；無法辨識則回傳空陣列 []`;
+· transferable_skills：0 至 3 項跨產業核心職能，每項需附上履歷中的依據；無法辨識則回傳空陣列 []
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【五維度評分分解（score_breakdown）】
+score_breakdown 必須輸出，且五個子項的加權平均應與 score 一致：
+· 年資與穩定性（權重 20%）：0-100，評估任職年數、職涯穩定度、升遷軌跡
+· 成果量化（權重 25%）：0-100，評估 STAR 原則應用、數字佐證的密度與可信度
+· 結構與ATS（權重 20%）：0-100，評估段落結構清晰度、版面 ATS 相容性
+· 關鍵字覆蓋（權重 15%）：0-100，評估與目標職位相關的中英文關鍵字覆蓋率
+· 細節完整性（權重 20%）：0-100，評估必填欄位完整度、無錯誤、無矛盾
+
+各子項評分獨立計算，反映真實差異，不可全部給同一分數。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【STAR 改寫示範（star_rewrite）】
+從履歷中挑選「最值得改寫且改寫效果最顯著」的一段經歷，提供 Before / After：
+· source：引用原文的來源（職稱 + 服務期間），例如「製程工程師 | 仁寶電腦 2020-2023」
+· original：完整引用原始文字（一條條列項目）
+· rewritten：改寫後示範——必須遵守職責真實性保護原則（不升格、不捏造數字）；使用「強動詞開頭 + 具體描述 + 可量化的規模或結果」
+· note：一句話說明改寫的核心邏輯（改了什麼、為什麼這樣改更有力）
+
+若履歷整體品質已很高（score ≥ 85）或無明顯可改寫段落，star_rewrite 可回傳 null。`;
 } // end buildSystemPrompt
 
 // Gemini native JSON schema
@@ -222,13 +243,39 @@ const RESPONSE_SCHEMA = {
       items: { type: Type.STRING },
       description: "0 至 3 項跨產業可轉移技能，格式：「技能名稱：依據說明」；無法辨識時回傳空陣列",
     },
+    score_breakdown: {
+      type: Type.OBJECT,
+      description: "五維度評分分解，各項 0-100，加權平均應與 score 一致",
+      properties: {
+        年資與穩定性: { type: Type.NUMBER, description: "0-100，權重 20%" },
+        成果量化: { type: Type.NUMBER, description: "0-100，權重 25%" },
+        結構與ATS: { type: Type.NUMBER, description: "0-100，權重 20%" },
+        關鍵字覆蓋: { type: Type.NUMBER, description: "0-100，權重 15%" },
+        細節完整性: { type: Type.NUMBER, description: "0-100，權重 20%" },
+      },
+      required: ["年資與穩定性", "成果量化", "結構與ATS", "關鍵字覆蓋", "細節完整性"],
+    },
+    star_rewrite: {
+      type: Type.OBJECT,
+      description: "最值得改寫的 STAR 示範；若無適合段落則省略此欄位",
+      properties: {
+        source: { type: Type.STRING, description: "來源：職稱 + 服務期間" },
+        original: { type: Type.STRING, description: "原始文字（直接引用）" },
+        rewritten: { type: Type.STRING, description: "改寫後示範（強動詞 + 量化）" },
+        note: { type: Type.STRING, description: "改寫邏輯說明（一句話）" },
+      },
+      required: ["source", "original", "rewritten", "note"],
+    },
   },
-  required: ["score", "summary", "strengths", "weaknesses", "actionable_advice", "fact_check_issues", "transferable_skills"],
+  required: ["score", "summary", "strengths", "weaknesses", "actionable_advice", "fact_check_issues", "transferable_skills", "score_breakdown"],
 };
 
-function buildGeminiConfig() {
+function buildGeminiConfig(targetJob?: string) {
+  const systemInstruction = targetJob
+    ? buildSystemPrompt() + `\n\n【本次診斷的目標職位】\n求職者目標職稱/產業：「${targetJob}」\n請在評分、關鍵字分析、actionable_advice 與 star_rewrite 中，優先考量此目標職位的需求。`
+    : buildSystemPrompt();
   return {
-    systemInstruction: buildSystemPrompt(),
+    systemInstruction,
     responseMimeType: "application/json",
     responseSchema: RESPONSE_SCHEMA,
     thinkingConfig: { thinkingBudget: 8000 },
@@ -243,12 +290,22 @@ function parseAndValidate(jsonText: string) {
   parsed.fact_check_issues = (parsed.fact_check_issues ?? []).slice(0, 3);
   parsed.transferable_skills = (parsed.transferable_skills ?? []).slice(0, 3);
   parsed.score = Math.round(Math.min(100, Math.max(0, parsed.score)));
+  // 確保 score_breakdown 各項也在合法範圍內
+  if (parsed.score_breakdown) {
+    for (const key of Object.keys(parsed.score_breakdown)) {
+      parsed.score_breakdown[key] = Math.round(Math.min(100, Math.max(0, parsed.score_breakdown[key] ?? 0)));
+    }
+  }
+  // star_rewrite 若為空物件則轉為 null
+  if (parsed.star_rewrite && !parsed.star_rewrite.source) {
+    parsed.star_rewrite = null;
+  }
   return ResumeAnalysisSchema.parse(parsed);
 }
 
 // PDF path: send raw bytes directly to Gemini — bypasses all text extraction
-async function analyzeWithPDF(buffer: Buffer): Promise<ResumeAnalysis> {
-  const cacheKey = getCacheKey(buffer);
+async function analyzeWithPDF(buffer: Buffer, targetJob?: string): Promise<ResumeAnalysis> {
+  const cacheKey = getCacheKey(buffer) + (targetJob ? `:${targetJob}` : "");
   const cached = getFromCache(cacheKey);
   if (cached) return cached;
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -259,17 +316,12 @@ async function analyzeWithPDF(buffer: Buffer): Promise<ResumeAnalysis> {
     contents: [
       {
         parts: [
-          {
-            inlineData: {
-              mimeType: "application/pdf",
-              data: base64,
-            },
-          },
+          { inlineData: { mimeType: "application/pdf", data: base64 } },
           { text: "請完整閱讀此份履歷 PDF，並依照系統指示進行專業診斷分析。" },
         ],
       },
     ],
-    config: buildGeminiConfig(),
+    config: buildGeminiConfig(targetJob),
   });
 
   const pdfResult = parseAndValidate(response.text ?? "");
@@ -278,8 +330,8 @@ async function analyzeWithPDF(buffer: Buffer): Promise<ResumeAnalysis> {
 }
 
 // Text path: plain text input
-async function analyzeWithText(resumeText: string): Promise<ResumeAnalysis> {
-  const cacheKey = getCacheKey(resumeText);
+async function analyzeWithText(resumeText: string, targetJob?: string): Promise<ResumeAnalysis> {
+  const cacheKey = getCacheKey(resumeText) + (targetJob ? `:${targetJob}` : "");
   const cached = getFromCache(cacheKey);
   if (cached) return cached;
 
@@ -288,7 +340,7 @@ async function analyzeWithText(resumeText: string): Promise<ResumeAnalysis> {
   const response = await ai.models.generateContent({
     model: AI_CONFIG.MODEL,
     contents: `請分析以下履歷內容：\n\n${resumeText}`,
-    config: buildGeminiConfig(),
+    config: buildGeminiConfig(targetJob),
   });
 
   const textResult = parseAndValidate(response.text ?? "");
@@ -303,7 +355,7 @@ export async function POST(request: NextRequest) {
       request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
       request.headers.get("x-real-ip") ??
       "unknown";
-    const { allowed, remaining, resetAt } = checkRateLimit(ip);
+    const { allowed, remaining, resetAt } = await checkRateLimit(ip);
     if (!allowed) {
       const resetIn = Math.ceil((resetAt - Date.now()) / 60000);
       return NextResponse.json(
@@ -333,20 +385,22 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "檔案大小超過 5MB 限制" }, { status: 400 });
       }
 
+      const targetJob = formData.get("targetJob") as string | null;
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      const analysis = await analyzeWithPDF(buffer);
+      const analysis = await analyzeWithPDF(buffer, targetJob ?? undefined);
       return NextResponse.json(analysis);
     } else {
       // Text paste path
       const body = await request.json();
       const resumeText: string = body.text ?? "";
+      const targetJob: string | undefined = body.targetJob || undefined;
 
       if (resumeText.trim().length < UPLOAD_CONFIG.MIN_TEXT_LENGTH) {
         return NextResponse.json({ error: "履歷內容過短，請提供更多資訊" }, { status: 400 });
       }
 
-      const analysis = await analyzeWithText(resumeText);
+      const analysis = await analyzeWithText(resumeText, targetJob);
       return NextResponse.json(analysis, {
         headers: { "X-RateLimit-Remaining": String(remaining) },
       });

@@ -4,9 +4,11 @@ import { useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { Zap, Target, FileSearch } from "lucide-react";
 import { AI_CONFIG } from "@/lib/constants";
+import { trackEvent } from "@/lib/analytics";
 import { UploadZone } from "@/components/UploadZone";
 import { DiagnosisReport } from "@/components/DiagnosisReport";
 import { AnalysisSkeleton } from "@/components/AnalysisSkeleton";
+import { EmailCapture } from "@/components/EmailCapture";
 import type { ResumeAnalysis } from "@/lib/schema";
 
 const features = [
@@ -36,14 +38,17 @@ const features = [
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ResumeAnalysis | null>(null);
-  const [lastRequest, setLastRequest] = useState<FormData | string | null>(null);
+  const [lastRequest, setLastRequest] = useState<{ data: FormData | string; targetJob?: string } | null>(null);
   const [hasError, setHasError] = useState(false);
 
-  const handleAnalyze = async (data: FormData | string) => {
+  const handleAnalyze = async (data: FormData | string, targetJob?: string) => {
     setIsLoading(true);
     setResult(null);
     setHasError(false);
-    setLastRequest(data);
+    setLastRequest({ data, targetJob });
+
+    const method = data instanceof FormData ? "pdf" : "text";
+    trackEvent({ name: "diagnose_started", params: { method, has_target_job: !!targetJob } });
 
     // 30 秒超時保護，防止 Gemini API 無回應時永久 Loading
     const controller = new AbortController();
@@ -53,6 +58,7 @@ export default function Home() {
       let response: Response;
 
       if (data instanceof FormData) {
+        if (targetJob) data.append("targetJob", targetJob);
         response = await fetch("/api/analyze-resume", {
           method: "POST",
           body: data,
@@ -62,7 +68,7 @@ export default function Home() {
         response = await fetch("/api/analyze-resume", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: data }),
+          body: JSON.stringify({ text: data, targetJob }),
           signal: controller.signal,
         });
       }
@@ -74,22 +80,29 @@ export default function Home() {
       }
 
       setResult(json);
+      trackEvent({ name: "diagnose_completed", params: { score: json.score, has_target_job: !!targetJob } });
 
       setTimeout(() => {
         document.getElementById("result")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     } catch (err) {
       setHasError(true);
-      if (err instanceof DOMException && err.name === "AbortError") {
-        toast.error("分析逾時（30 秒），請稍後再試", { duration: 5000 });
-      } else {
-        const message = err instanceof Error ? err.message : "發生未知錯誤，請稍後再試";
-        toast.error(message, { duration: 5000 });
-      }
+      const isAbort = err instanceof DOMException && err.name === "AbortError";
+      const message = isAbort
+        ? "分析逾時（30 秒），請稍後再試"
+        : err instanceof Error
+        ? err.message
+        : "發生未知錯誤，請稍後再試";
+      toast.error(message, { duration: 5000 });
+      trackEvent({ name: "diagnose_error", params: { error_type: isAbort ? "timeout" : "api_error" } });
     } finally {
       clearTimeout(timeoutId);
       setIsLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    if (lastRequest) handleAnalyze(lastRequest.data, lastRequest.targetJob);
   };
 
   return (
@@ -189,7 +202,7 @@ export default function Home() {
             <div className="flex items-center justify-between gap-4 rounded-2xl border border-red-100 bg-red-50 px-5 py-4">
               <p className="text-sm text-red-700 font-medium">分析失敗，是否要重新嘗試？</p>
               <button
-                onClick={() => handleAnalyze(lastRequest)}
+                onClick={handleRetry}
                 className="flex-shrink-0 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 transition-colors"
               >
                 重試
@@ -200,15 +213,19 @@ export default function Home() {
 
         {/* Result */}
         {result && !isLoading && (
-          <section id="result" className="max-w-xl mx-auto pb-16 scroll-mt-20">
-            <h2 className="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
+          <section id="result" className="max-w-xl mx-auto pb-16 scroll-mt-20 space-y-5">
+            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
               <span className="w-2 h-6 rounded-full bg-blue-600 inline-block" />
               AI 診斷報告
             </h2>
             <DiagnosisReport data={result} />
+
+            {/* Email capture — shown after report */}
+            <EmailCapture score={result.score} targetJob={lastRequest?.targetJob} />
+
             <button
               onClick={() => setResult(null)}
-              className="mt-6 w-full text-sm text-slate-400 hover:text-slate-600 transition-colors py-2"
+              className="w-full text-sm text-slate-400 hover:text-slate-600 transition-colors py-2"
             >
               ← 重新診斷
             </button>

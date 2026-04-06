@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { Upload, FileText, AlertCircle } from "lucide-react";
+import { Upload, FileText, AlertCircle, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { UPLOAD_CONFIG } from "@/lib/constants";
 
 interface UploadZoneProps {
-  onAnalyze: (data: FormData | string) => void;
+  onAnalyze: (data: FormData | string, targetJob?: string) => void;
   isLoading: boolean;
 }
 
@@ -17,6 +17,7 @@ export function UploadZone({ onAnalyze, isLoading }: UploadZoneProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [textContent, setTextContent] = useState("");
   const [fileError, setFileError] = useState("");
+  const [targetJob, setTargetJob] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
@@ -25,7 +26,6 @@ export function UploadZone({ onAnalyze, isLoading }: UploadZoneProps) {
       setFileError("檔案大小超過 5MB 限制");
       return;
     }
-    // 驗證 PDF 魔數（前 4 bytes 必須為 %PDF），防止偽造副檔名
     try {
       const header = await file.slice(0, 4).arrayBuffer();
       const bytes = new Uint8Array(header);
@@ -61,13 +61,31 @@ export function UploadZone({ onAnalyze, isLoading }: UploadZoneProps) {
     if (!selectedFile) return;
     const formData = new FormData();
     formData.append("file", selectedFile);
-    onAnalyze(formData);
+    onAnalyze(formData, targetJob.trim() || undefined);
   };
 
   const handleSubmitText = () => {
     if (!textContent.trim()) return;
-    onAnalyze(textContent.trim());
+    onAnalyze(textContent.trim(), targetJob.trim() || undefined);
   };
+
+  // 目標職位輸入框（兩個 tab 共用）
+  const TargetJobInput = () => (
+    <div className="mb-5">
+      <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+        <Briefcase className="w-3.5 h-3.5" />
+        目標職稱 / 產業
+        <span className="text-slate-400 font-normal normal-case tracking-normal ml-1">（選填，填入後診斷更精準）</span>
+      </label>
+      <input
+        type="text"
+        value={targetJob}
+        onChange={(e) => setTargetJob(e.target.value)}
+        placeholder="例如：軟體工程師、財務分析師、B2B 業務、電子製造業製程工程師..."
+        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+      />
+    </div>
+  );
 
   return (
     <Tabs defaultValue="pdf" className="w-full">
@@ -83,6 +101,7 @@ export function UploadZone({ onAnalyze, isLoading }: UploadZoneProps) {
       </TabsList>
 
       <TabsContent value="pdf">
+        <TargetJobInput />
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -159,6 +178,7 @@ export function UploadZone({ onAnalyze, isLoading }: UploadZoneProps) {
       </TabsContent>
 
       <TabsContent value="text">
+        <TargetJobInput />
         <textarea
           value={textContent}
           onChange={(e) => setTextContent(e.target.value)}
