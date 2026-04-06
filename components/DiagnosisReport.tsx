@@ -33,11 +33,11 @@ function scoreColor(score: number) {
   return "text-red-600";
 }
 
-function scoreBarColor(score: number) {
-  if (score >= 80) return "bg-green-500";
-  if (score >= 60) return "bg-blue-500";
-  if (score >= 40) return "bg-yellow-500";
-  return "bg-red-500";
+function scoreBarColor(score: number): { bg: string; text: string } {
+  if (score >= 80) return { bg: "bg-green-500", text: "text-green-600" };
+  if (score >= 60) return { bg: "bg-blue-500",  text: "text-blue-600" };
+  if (score >= 40) return { bg: "bg-yellow-500", text: "text-yellow-600" };
+  return { bg: "bg-red-500", text: "text-red-600" };
 }
 
 function scoreLabel(score: number) {
@@ -84,6 +84,7 @@ function ScoreBreakdownSection({ breakdown }: { breakdown: ScoreBreakdown }) {
       <CardContent className="space-y-4">
         {BREAKDOWN_META.map(({ key, label, weight, color }) => {
           const val = breakdown[key] ?? 0;
+          const colors = scoreBarColor(val);
           return (
             <div key={key}>
               <div className="flex justify-between text-xs mb-1.5">
@@ -91,7 +92,7 @@ function ScoreBreakdownSection({ breakdown }: { breakdown: ScoreBreakdown }) {
                   {label}
                   <span className="ml-1 text-slate-400 font-normal">({weight})</span>
                 </span>
-                <span className={`font-bold tabular-nums ${scoreBarColor(val).replace("bg-", "text-")}`}>
+                <span className={`font-bold tabular-nums ${colors.text}`}>
                   {val}
                 </span>
               </div>
