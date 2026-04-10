@@ -1,14 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { Zap, Target, FileSearch } from "lucide-react";
 import { AI_CONFIG } from "@/lib/constants";
 import { trackEvent } from "@/lib/analytics";
+import {
+  canUse,
+  getRemainingUses,
+  incrementUsage,
+  getMaxUses,
+  FREE_USES,
+} from "@/lib/usage";
 import { UploadZone } from "@/components/UploadZone";
 import { DiagnosisReport } from "@/components/DiagnosisReport";
 import { AnalysisSkeleton } from "@/components/AnalysisSkeleton";
 import { EmailCapture } from "@/components/EmailCapture";
+import { UsageGate } from "@/components/UsageGate";
 import type { ResumeAnalysis } from "@/lib/schema";
 
 const features = [
@@ -41,7 +49,33 @@ export default function Home() {
   const [lastRequest, setLastRequest] = useState<{ data: FormData | string; targetJob?: string } | null>(null);
   const [hasError, setHasError] = useState(false);
 
+  // 次數相關 — SSR 安全（localStorage 只在 client 讀）
+  const [remaining, setRemaining] = useState<number>(FREE_USES);
+  const [maxUses, setMaxUses] = useState<number>(FREE_USES);
+  const [showGate, setShowGate] = useState(false);
+  // 暫存待執行的分析請求（點擊「開始」時若次數不足先暫存）
+  const [pendingRequest, setPendingRequest] = useState<{ data: FormData | string; targetJob?: string } | null>(null);
+
+  // 初始化次數（避免 hydration mismatch）
+  useEffect(() => {
+    setRemaining(getRemainingUses());
+    setMaxUses(getMaxUses());
+  }, []);
+
+  const refreshUsage = () => {
+    setRemaining(getRemainingUses());
+    setMaxUses(getMaxUses());
+  };
+
+  // ── 核心分析流程 ──────────────────────────────────────────────────────────
   const handleAnalyze = async (data: FormData | string, targetJob?: string) => {
+    // 先檢查次數（使用最新 localStorage 值）
+    if (!canUse()) {
+      setPendingRequest({ data, targetJob });
+      setShowGate(true);
+      return;
+    }
+
     setIsLoading(true);
     setResult(null);
     setHasError(false);
@@ -50,7 +84,6 @@ export default function Home() {
     const method = data instanceof FormData ? "pdf" : "text";
     trackEvent({ name: "diagnose_started", params: { method, has_target_job: !!targetJob } });
 
-    // 30 秒超時保護，防止 Gemini API 無回應時永久 Loading
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), AI_CONFIG.REQUEST_TIMEOUT_MS);
 
@@ -79,6 +112,10 @@ export default function Home() {
         throw new Error(json.error || "分析失敗，請稍後再試");
       }
 
+      // 成功後才計次
+      incrementUsage();
+      refreshUsage();
+
       setResult(json);
       trackEvent({ name: "diagnose_completed", params: { score: json.score, has_target_job: !!targetJob } });
 
@@ -101,12 +138,35 @@ export default function Home() {
     }
   };
 
+  // ── UsageGate 解鎖後自動繼續 ─────────────────────────────────────────────
+  const handleUnlocked = () => {
+    setShowGate(false);
+    refreshUsage();
+    if (pendingRequest) {
+      const req = pendingRequest;
+      setPendingRequest(null);
+      // 稍微延遲讓 gate 動畫收起
+      setTimeout(() => handleAnalyze(req.data, req.targetJob), 300);
+    }
+  };
+
   const handleRetry = () => {
     if (lastRequest) handleAnalyze(lastRequest.data, lastRequest.targetJob);
   };
 
+  // ── 次數指示器顏色 ───────────────────────────────────────────────────────
+  const remainingColor =
+    remaining === 0
+      ? "text-red-600 bg-red-50 border-red-200"
+      : remaining === 1
+      ? "text-amber-600 bg-amber-50 border-amber-200"
+      : "text-green-700 bg-green-50 border-green-200";
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {/* UsageGate modal */}
+      {showGate && <UsageGate onUnlocked={handleUnlocked} />}
+
       <Toaster
         position="top-center"
         toastOptions={{
@@ -116,9 +176,7 @@ export default function Home() {
             color: "#f8fafc",
             fontSize: "14px",
           },
-          error: {
-            iconTheme: { primary: "#ef4444", secondary: "#fff" },
-          },
+          error: { iconTheme: { primary: "#ef4444", secondary: "#fff" } },
         }}
       />
 
@@ -131,14 +189,19 @@ export default function Home() {
             </div>
             <span className="font-bold text-slate-800 text-lg">ResumeAI</span>
           </div>
-          <span className="text-xs text-slate-400 hidden sm:block">
-            由 Gemini AI 驅動 · 完全免費使用
-          </span>
+          <div className="flex items-center gap-3">
+            {/* 次數指示器 */}
+            <div className={`hidden sm:flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${remainingColor}`}>
+              <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
+              剩餘 {remaining} 次免費診斷
+            </div>
+            <span className="text-xs text-slate-400 hidden lg:block">由 Gemini AI 驅動</span>
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-5xl px-6 pb-24">
-        {/* Hero Section */}
+        {/* Hero */}
         <section className="pt-16 pb-14 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 border border-blue-100 px-4 py-1.5 text-xs font-semibold text-blue-700 mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
@@ -162,6 +225,23 @@ export default function Home() {
           <div className="mx-auto max-w-xl">
             <div className="rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 p-7">
               <UploadZone onAnalyze={handleAnalyze} isLoading={isLoading} />
+            </div>
+
+            {/* 次數提示（卡片下方） */}
+            <div className="mt-3 flex items-center justify-center gap-2 text-xs text-slate-400">
+              {Array.from({ length: maxUses }).map((_, i) => (
+                <span
+                  key={i}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    i < (maxUses - remaining) ? "bg-slate-300" : "bg-blue-400"
+                  }`}
+                />
+              ))}
+              <span className="ml-1">
+                {remaining > 0
+                  ? `剩餘 ${remaining} 次免費診斷`
+                  : "次數已用完，訂閱 Email 解鎖更多次數"}
+              </span>
             </div>
           </div>
         </section>
@@ -189,14 +269,14 @@ export default function Home() {
           </section>
         )}
 
-        {/* Loading State */}
+        {/* Loading */}
         {isLoading && (
           <section className="max-w-xl mx-auto pb-16">
             <AnalysisSkeleton />
           </section>
         )}
 
-        {/* Error Retry Banner */}
+        {/* Error Retry */}
         {hasError && !isLoading && !result && lastRequest && (
           <section className="max-w-xl mx-auto pb-6">
             <div className="flex items-center justify-between gap-4 rounded-2xl border border-red-100 bg-red-50 px-5 py-4">
@@ -219,10 +299,7 @@ export default function Home() {
               AI 診斷報告
             </h2>
             <DiagnosisReport data={result} />
-
-            {/* Email capture — shown after report */}
             <EmailCapture score={result.score} targetJob={lastRequest?.targetJob} />
-
             <button
               onClick={() => setResult(null)}
               className="w-full text-sm text-slate-400 hover:text-slate-600 transition-colors py-2"
