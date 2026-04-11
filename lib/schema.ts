@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 export const ScoreBreakdownSchema = z.object({
-  年資與穩定性: z.number().min(0).max(100),
-  成果量化: z.number().min(0).max(100),
-  結構與ATS: z.number().min(0).max(100),
-  關鍵字覆蓋: z.number().min(0).max(100),
-  細節完整性: z.number().min(0).max(100),
+  定位清晰度: z.number().min(0).max(100),
+  成果具體性: z.number().min(0).max(100),
+  相關性匹配度: z.number().min(0).max(100),
+  視覺可讀性: z.number().min(0).max(100),
+  敘事一致性: z.number().min(0).max(100),
 });
 
 export const StarRewriteSchema = z.object({

@@ -67,11 +67,11 @@ const BREAKDOWN_META: {
   weight: string;
   color: string;
 }[] = [
-  { key: "成果量化", label: "成果量化", weight: "25%", color: "bg-green-500" },
-  { key: "年資與穩定性", label: "年資與穩定性", weight: "20%", color: "bg-blue-500" },
-  { key: "結構與ATS", label: "結構與 ATS", weight: "20%", color: "bg-indigo-500" },
-  { key: "細節完整性", label: "細節完整性", weight: "20%", color: "bg-orange-500" },
-  { key: "關鍵字覆蓋", label: "關鍵字覆蓋", weight: "15%", color: "bg-purple-500" },
+  { key: "成果具體性", label: "成果具體性", weight: "25%", color: "bg-green-500" },
+  { key: "相關性匹配度", label: "相關性匹配度", weight: "25%", color: "bg-blue-500" },
+  { key: "定位清晰度", label: "定位清晰度", weight: "20%", color: "bg-indigo-500" },
+  { key: "視覺可讀性", label: "視覺可讀性", weight: "15%", color: "bg-orange-500" },
+  { key: "敘事一致性", label: "敘事一致性", weight: "15%", color: "bg-purple-500" },
 ];
 
 function ScoreBreakdownSection({ breakdown }: { breakdown: ScoreBreakdown }) {
@@ -488,7 +488,7 @@ export function DiagnosisReport({ data }: DiagnosisReportProps) {
               {/* 第一行：主要 CTA + LINE@ */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <a
-                  href="https://forms.gle/f87NSamCuZXTKzBB7"
+                  href="https://my-booking-system.onrender.com/"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => trackEvent({ name: "upsell_clicked", params: { cta: "booking" } })}
@@ -534,6 +534,19 @@ export function DiagnosisReport({ data }: DiagnosisReportProps) {
                   </>
                 )}
               </button>
+            </div>
+
+            {/* 第三行：回主網站 */}
+            <div className="mt-2 text-center">
+              <a
+                href="https://tzlth-website.vercel.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent({ name: "upsell_clicked", params: { cta: "main_site" } })}
+                className="inline-flex items-center gap-1 text-xs text-blue-200 hover:text-white transition-colors underline underline-offset-2"
+              >
+                了解 Tim 的完整服務與定價 →
+              </a>
             </div>
           </div>
         </div>
