@@ -322,7 +322,7 @@ export function DiagnosisReport({ data }: DiagnosisReportProps) {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-amber-700">
               <AlertTriangle className="w-5 h-5" />
-              ATS 扣分項目
+              待改善的五維項目
             </CardTitle>
           </CardHeader>
           <CardContent>
