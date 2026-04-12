@@ -22,15 +22,15 @@ import type { ResumeAnalysis } from "@/lib/schema";
 const features = [
   {
     icon: Zap,
-    title: "快速掃描",
-    desc: "30 秒內完成全方位履歷解析，AI 即時給出評分與診斷摘要，省去等待的焦慮。",
+    title: "五維框架診斷",
+    desc: "從定位清晰度、成果具體性、相關性匹配度、視覺可讀性、敘事一致性五個維度，找出你的履歷真正卡在哪裡。",
     color: "text-blue-600",
     bg: "bg-blue-50",
   },
   {
     icon: Target,
-    title: "ATS 友善度分析",
-    desc: "模擬 HR 系統自動篩選邏輯，找出會讓你在第一關就被刷掉的關鍵字缺漏與格式地雷。",
+    title: "相關性精準匹配",
+    desc: "對照目標職位 JD，分析你的履歷與職缺的關鍵字吻合度，直接提高進入人工審閱的機率。",
     color: "text-indigo-600",
     bg: "bg-indigo-50",
   },
@@ -217,8 +217,8 @@ export default function Home() {
           </h1>
 
           <p className="text-lg text-slate-500 max-w-xl mx-auto leading-relaxed mb-10">
-            上傳履歷，即刻獲得 ATS 友善度評分、履歷優勢、扣分項目、可轉移技能與具體改善建議。
-            讓你的下一份履歷直接突破篩選關卡。
+            上傳履歷，用五維框架找出真正的卡關點：定位、成果、相關性、視覺、敘事。
+            30 秒診斷，給出可立即執行的修改方向。
           </p>
 
           {/* Upload Card */}
@@ -311,8 +311,17 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-400">
-        © 2026 ResumeAI · 您的履歷資料不會被儲存 · 安全加密傳輸
+      <footer className="border-t border-slate-200 py-6 text-center text-xs text-slate-400 space-y-1">
+        <p>© 2026 職涯停看聽 · ResumeAI · 您的履歷資料不會被儲存 · 安全加密傳輸</p>
+        <p>
+          <a href="/privacy" className="underline hover:text-slate-600 transition-colors">
+            隱私政策
+          </a>
+          {" · "}
+          <a href="https://lin.ee/IOX6V66" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-600 transition-colors">
+            聯絡我們
+          </a>
+        </p>
       </footer>
     </div>
   );
