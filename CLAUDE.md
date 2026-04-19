@@ -41,6 +41,7 @@
 
 | 日期 | 修改內容 | 執行視窗 | 狀態 |
 |------|---------|---------|------|
+| 2026-04-19 | 新增 /burnout 職業倦怠快測路由（app/burnout/page.tsx）+ 診斷結果頁 burnout CTA + analytics.ts 新增 burnout_completed 事件 | 總部視窗 | ✅ |
 | 2026-04-14 | GA4 Data API 自動拉取腳本上線（scripts/fetch-ga4-weekly.py），W15 基準值填入 ga4-weekly-log.md | 總部視窗 | ✅ |
 | 2026-04-13 | 修復主網址 404（重新 deploy + alias + vercel domain add，tzlth-resume-diagnosis.vercel.app 恢復）| 總部視窗 | ✅ |
 | 2026-04-13 | 修正 page.tsx features card 文案，對齊五維框架（移除 ATS 舊說法）| 總部視窗 | ✅ |
