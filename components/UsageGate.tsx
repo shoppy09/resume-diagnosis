@@ -149,7 +149,7 @@ export function UsageGate({ onUnlocked }: UsageGateProps) {
 
           {/* ── 選項三：直接諮詢（無限）── */}
           <a
-            href="https://forms.gle/f87NSamCuZXTKzBB7"
+            href="https://my-booking-system.onrender.com/"
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackEvent({ name: "upsell_clicked", params: { cta: "booking" } })}

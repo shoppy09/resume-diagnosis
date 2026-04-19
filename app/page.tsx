@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Toaster, toast } from "react-hot-toast";
-import { Zap, Target, FileSearch } from "lucide-react";
+import { Zap, Target, FileSearch, CalendarCheck } from "lucide-react";
 import { AI_CONFIG } from "@/lib/constants";
 import { trackEvent } from "@/lib/analytics";
 import {
@@ -300,6 +300,20 @@ export default function Home() {
             </h2>
             <DiagnosisReport data={result} />
             <EmailCapture score={result.score} targetJob={lastRequest?.targetJob} />
+            {/* 預約諮詢 CTA */}
+            <a
+              href="https://my-booking-system.onrender.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackEvent({ name: "booking_cta_clicked", params: { source: "diagnosis_result" } })}
+              className="flex items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-5 hover:from-blue-700 hover:to-indigo-700 transition-all group"
+            >
+              <div>
+                <p className="text-sm font-bold text-white mb-0.5">想深入改善？預約 1-on-1 諮詢</p>
+                <p className="text-xs text-blue-200">CDA 認證顧問 Tim・提供具體修改方向・無次數限制</p>
+              </div>
+              <CalendarCheck className="w-6 h-6 text-white flex-shrink-0 group-hover:scale-110 transition-transform" />
+            </a>
             <button
               onClick={() => setResult(null)}
               className="w-full text-sm text-slate-400 hover:text-slate-600 transition-colors py-2"
