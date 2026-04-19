@@ -5,6 +5,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { Zap, Target, FileSearch, CalendarCheck } from "lucide-react";
 import { AI_CONFIG } from "@/lib/constants";
 import { trackEvent } from "@/lib/analytics";
+import Link from "next/link";
 import {
   canUse,
   getRemainingUses,
@@ -314,6 +315,17 @@ export default function Home() {
               </div>
               <CalendarCheck className="w-6 h-6 text-white flex-shrink-0 group-hover:scale-110 transition-transform" />
             </a>
+            <Link
+              href="/burnout"
+              onClick={() => trackEvent({ name: "upsell_clicked", params: { cta: "burnout_quiz" } })}
+              className="flex items-center justify-between gap-4 rounded-2xl bg-slate-100 hover:bg-slate-200 p-4 transition-all group border border-slate-200"
+            >
+              <div>
+                <p className="text-sm font-semibold text-slate-700 mb-0.5">倦怠還是方向問題？</p>
+                <p className="text-xs text-slate-500">2 分鐘快測，找出你真正卡在哪裡</p>
+              </div>
+              <span className="text-slate-400 group-hover:translate-x-1 transition-transform text-lg">→</span>
+            </Link>
             <button
               onClick={() => setResult(null)}
               className="w-full text-sm text-slate-400 hover:text-slate-600 transition-colors py-2"

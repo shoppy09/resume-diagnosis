@@ -13,7 +13,8 @@ type GaEvent =
   | { name: "diagnose_started"; params: { method: "pdf" | "text"; has_target_job: boolean } }
   | { name: "diagnose_completed"; params: { score: number; has_target_job: boolean } }
   | { name: "diagnose_error"; params: { error_type: string } }
-  | { name: "upsell_clicked"; params: { cta: "booking" | "line" | "pdf_download" | "main_site" } }
+  | { name: "upsell_clicked"; params: { cta: "booking" | "line" | "pdf_download" | "main_site" | "burnout_quiz" } }
+  | { name: "burnout_completed"; params: { score: number; result_level: "low" | "mid" | "high" } }
   | { name: "pdf_downloaded"; params: { score: number } }
   | { name: "share_clicked"; params: { method: "web_share" | "copy_link" } }
   | { name: "email_subscribed"; params: { has_target_job: boolean } }
