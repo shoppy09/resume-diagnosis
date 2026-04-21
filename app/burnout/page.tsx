@@ -36,14 +36,14 @@ const RESULTS = {
     desc: '還沒到倦怠臨界點，但訊號已出現。建議找出根源，避免累積到爆點。',
     reasons: ['付出與回報的落差感正在累積', '工作意義感逐漸下降', '身心已出現疲勞訊號'],
     cta_text: '累積到爆點之前先聊聊 →',
-    cta_link: 'https://my-booking-system.onrender.com/', cta_sub: '30 分鐘方向釐清諮詢 NT$600',
+    cta_link: 'https://booking.careerssl.com', cta_sub: '30 分鐘方向釐清諮詢 NT$600',
   },
   high: {
     label: '倦怠指數偏高', color: 'red',
     desc: '需要認真討論是策略問題還是環境問題。繼續撐下去通常不是解法。',
     reasons: ['工作已嚴重消耗能量', '動機與投入感明顯下滑', '需要從外部視角釐清處境'],
     cta_text: '這個狀況需要認真討論 →',
-    cta_link: 'https://my-booking-system.onrender.com/', cta_sub: '預約職涯諮詢',
+    cta_link: 'https://booking.careerssl.com', cta_sub: '預約職涯諮詢',
   },
 }
 

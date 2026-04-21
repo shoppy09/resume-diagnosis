@@ -303,7 +303,7 @@ export default function Home() {
             <EmailCapture score={result.score} targetJob={lastRequest?.targetJob} />
             {/* 預約諮詢 CTA */}
             <a
-              href="https://my-booking-system.onrender.com/"
+              href="https://booking.careerssl.com"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackEvent({ name: "booking_cta_clicked", params: { source: "diagnosis_result" } })}
