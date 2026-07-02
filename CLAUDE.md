@@ -28,19 +28,18 @@
 
 > 所有對話視窗共用檔案系統。**文件是各視窗之間唯一的共用記憶。**
 
-### 每次完成任何修改後，必須執行收尾五件事（順序不可省略）：
-0. **git commit + git push 到 GitHub**（shoppy09/resume-diagnosis）→ 修改後 build → push → `npx vercel --prod`
-1. **更新本文件「最近修改記錄」**（日期、修改內容、狀態 ✅）← **當場就寫，不等收尾**
-2. **更新總部任務清單**：`C:\Users\USER\Desktop\tzlth-hq\dev\tasks.md`（完成項目標 [x] + 完成日期）
-3. **更新每日日誌**：`C:\Users\USER\Desktop\tzlth-hq\reports\daily-log.md`
-4. **寫入反思日誌**：`C:\Users\USER\Desktop\tzlth-hq\reports\reflection-log.md`（有實質改善價值才寫）
+### 收尾七件事（每次對話結束前必做，2026-07-02 指針化 RCF-120）
+收尾完整規則詳見**總部 CLAUDE.md →「核心原則零：收尾七件事」**（7 步驟：git push / 最近修改記錄 / tasks.md / inventory.json / daily-log / reflection-log / 品質自查 HARD STOP / 未完成清單 HARD STOP）。
+**本 repo 部署特例（步驟 0）**：程式碼修改＝`npm run build` → git push（shoppy09/resume-diagnosis）→ `npx vercel --prod` 三步缺一不可；純文件修改 push 即可。
+**步驟 1 提醒**：「更新本文件最近修改記錄」= 更新本 CLAUDE.md 的「最近修改記錄」表格。
 
-> 未完成收尾五件事 = 任務未完成。修改記錄空白 = 上次沒有收尾。未 push = 儀表板看不到。
+> 未完成收尾七件事 = 任務未完成。未 push = 儀表板看不到。
 
 ### 最近修改記錄
 
 | 日期 | 修改內容 | 執行視窗 | 狀態 |
 |------|---------|---------|------|
+| 2026-07-02 | 收尾規則指針化（RCF-120 D6）：舊「收尾四/五件事」清單 → 總部 CLAUDE.md 收尾七件事指針式（部署特例保留在地）；消除與主檔的版本漂移 | 總部視窗 | ✅ |
 | 2026-04-19 | 新增 /burnout 職業倦怠快測路由（app/burnout/page.tsx）+ 診斷結果頁 burnout CTA + analytics.ts 新增 burnout_completed 事件 | 總部視窗 | ✅ |
 | 2026-04-14 | GA4 Data API 自動拉取腳本上線（scripts/fetch-ga4-weekly.py），W15 基準值填入 ga4-weekly-log.md | 總部視窗 | ✅ |
 | 2026-04-13 | 修復主網址 404（重新 deploy + alias + vercel domain add，tzlth-resume-diagnosis.vercel.app 恢復）| 總部視窗 | ✅ |
