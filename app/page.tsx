@@ -311,7 +311,7 @@ export default function Home() {
             >
               <div>
                 <p className="text-sm font-bold text-white mb-0.5">想深入改善？預約 1-on-1 諮詢</p>
-                <p className="text-xs text-blue-200">CDA 認證顧問 Tim・提供具體修改方向・無次數限制</p>
+                <p className="text-xs text-blue-200">CDA 認證職涯顧問 Tim・提供具體修改方向・無次數限制</p>
               </div>
               <CalendarCheck className="w-6 h-6 text-white flex-shrink-0 group-hover:scale-110 transition-transform" />
             </a>
