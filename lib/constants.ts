@@ -13,7 +13,11 @@ export const UPLOAD_CONFIG = {
 } as const;
 
 export const AI_CONFIG = {
-  /** 使用的 Gemini 模型 */
+  /**
+   * 使用的 Gemini 模型（此為模型 SoT，改此處同步影響 route.ts PDF+文字兩路徑）
+   * ⚠️ 客戶端付費診斷刻意釘版（非用 gemini-flash-latest 滾動別名），避免模型靜默更換造成結構化輸出漂移。
+   * ⛔ gemini-2.5-flash 於 2026-10-16 停用 → 屆時前須遷移（評估 2.5-flash-lite vs 3.5-flash，權衡成本）。追蹤：dev/tasks.md（RCF-123 衍生）。
+   */
   MODEL: "gemini-2.5-flash",
   /** 思考預算（越高越嚴謹，但速度較慢） */
   THINKING_BUDGET: 8000,
