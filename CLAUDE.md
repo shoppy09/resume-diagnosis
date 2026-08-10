@@ -11,7 +11,8 @@
 ## 技術架構
 - Framework：Next.js（版本注意：API 與慣例可能與舊版不同，修改前先讀 AGENTS.md）
 - 部署：Vercel
-- 路徑：嵌入個人網站 https://tzlth-website.vercel.app/#ai-tool
+- 正式網址：https://diagnose.careerssl.com（canonical；`resume-diagnosis.vercel.app` 為 Vercel fallback，對外一律用 canonical）
+- 官網入口：https://www.careerssl.com/#ai-tool（2026-08-10 更正：原記 `tzlth-website.vercel.app` 已 301 至 www）
 
 ## 商業邏輯
 1. 使用者輸入履歷 → AI 診斷 → 給出建議
@@ -39,6 +40,7 @@
 
 | 日期 | 修改內容 | 執行視窗 | 狀態 |
 |------|---------|---------|------|
+| 2026-08-10 | **2 個對外預約 CTA 改指 canonical + 3 處 stale URL 順修（HQ tasks L139，commit `793dd8f`）**：`UsageGate.tsx:152`／`DiagnosisReport.tsx:491` 原指 `my-booking-system.onrender.com`（退場中的 Render 重複實例，當日已被抽 5 把 env → 客戶能送出預約但不寄確認信/不發 LINE/不建 GCal/Tim 收不到通知＝**靜默失敗**；09-15 評估 suspend 後直接 503）→ 改 `www.careerssl.com/booking?source=diagnosis-{usagegate,report}`。順修：分享網址 ×2（`UsageGate:44`／`DiagnosisReport:166`）→ `diagnose.careerssl.com/`；main_site CTA（`DiagnosisReport:542`）→ `www.careerssl.com`（原 301 多一跳）。**根因＝兩次清掃皆漏**：官網 `0cae3fa`(04-21) find-replace 只掃官網 repo；本 repo `d6a4c09`(05-19) 搜尋鍵為前一代值 `booking.careerssl.com`、掃不到更早的 onrender。**`?source=` 刻意不用 `utm_*`**（與預約同網域共用 roll-up `G-TK8D1DX7MJ`，mid-funnel utm 會覆寫流量來源、污染端到端漏斗歸因）。GA4 事件與 CTA 文案未動。驗證：`dev/deploy-verify/SYS-03-2026-08-10.md`（bundle 0 殘留／UsageGate 實際渲染 E2E 桌機+手機 375×812／落地頁導航含 `page_location`）| 總部視窗 | ✅ |
 | 2026-07-02 | 收尾規則指針化（RCF-120 D6）：舊「收尾四/五件事」清單 → 總部 CLAUDE.md 收尾七件事指針式（部署特例保留在地）；消除與主檔的版本漂移 | 總部視窗 | ✅ |
 | 2026-04-19 | 新增 /burnout 職業倦怠快測路由（app/burnout/page.tsx）+ 診斷結果頁 burnout CTA + analytics.ts 新增 burnout_completed 事件 | 總部視窗 | ✅ |
 | 2026-04-14 | GA4 Data API 自動拉取腳本上線（scripts/fetch-ga4-weekly.py），W15 基準值填入 ga4-weekly-log.md | 總部視窗 | ✅ |
