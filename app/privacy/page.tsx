@@ -4,6 +4,8 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "隱私政策 — ResumeAI",
   description: "AI 履歷診斷服務隱私政策",
+  // 覆寫 root layout 的 canonical:"/"，避免本頁被指向首頁
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {
