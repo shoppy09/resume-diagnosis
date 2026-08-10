@@ -163,7 +163,7 @@ function ShareButton({ score }: { score: number }) {
     const shareData = {
       title: "我的 AI 履歷診斷結果",
       text: `我的履歷在 ResumeAI 獲得了 ${score} 分！快來試試看你的履歷能拿幾分？`,
-      url: "https://resume-diagnosis.vercel.app/",
+      url: "https://diagnose.careerssl.com/",
     };
 
     try {
@@ -488,7 +488,7 @@ export function DiagnosisReport({ data }: DiagnosisReportProps) {
               {/* 第一行：主要 CTA + LINE@ */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <a
-                  href="https://my-booking-system.onrender.com/"
+                  href="https://www.careerssl.com/booking?source=diagnosis-report"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => trackEvent({ name: "upsell_clicked", params: { cta: "booking" } })}
@@ -539,7 +539,7 @@ export function DiagnosisReport({ data }: DiagnosisReportProps) {
             {/* 第三行：回主網站 */}
             <div className="mt-2 text-center">
               <a
-                href="https://tzlth-website.vercel.app"
+                href="https://www.careerssl.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackEvent({ name: "upsell_clicked", params: { cta: "main_site" } })}

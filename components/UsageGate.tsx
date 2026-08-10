@@ -41,7 +41,7 @@ export function UsageGate({ onUnlocked }: UsageGateProps) {
     if (shareStatus === "done") return;
 
     const shareText = "我用 ResumeAI 在 30 秒內拿到了 AI 履歷診斷！完全免費，快來試試：";
-    const shareUrl = "https://resume-diagnosis.vercel.app/";
+    const shareUrl = "https://diagnose.careerssl.com/";
 
     try {
       const shareApi = (navigator as Navigator & { share?: (data: ShareData) => Promise<void> }).share;
@@ -149,7 +149,7 @@ export function UsageGate({ onUnlocked }: UsageGateProps) {
 
           {/* ── 選項三：直接諮詢（無限）── */}
           <a
-            href="https://my-booking-system.onrender.com/"
+            href="https://www.careerssl.com/booking?source=diagnosis-usagegate"
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackEvent({ name: "upsell_clicked", params: { cta: "booking" } })}
