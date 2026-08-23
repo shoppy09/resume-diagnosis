@@ -33,7 +33,7 @@
 收尾完整規則詳見**總部 CLAUDE.md →「核心原則零：收尾七件事」**（7 步驟：git push / 最近修改記錄 / tasks.md / inventory.json / daily-log / reflection-log / 品質自查 HARD STOP / 未完成清單 HARD STOP）。
 **本 repo 部署特例（步驟 0）**：程式碼修改＝`npm run build` → git push（shoppy09/resume-diagnosis）→ `npx vercel --prod` 三步缺一不可；純文件修改 push 即可。
 > ✅ **2026-08-23 dashboard 實查確認：本 repo auto-deploy 確為「停用」**（Deployments 列表零 git-source 部署）⇒ `npx vercel --prod` **確實是唯一上線途徑**，本欄記載正確（停用日為本檔 2026-04-13 記錄的 Ignored Build Step 處置）。⚠️ 但總部主檔規則零原載的**全域**「Vercel GitHub 自動部署永久停用」是錯誤通則——8 專案實查為 5 開／2 關／1 未連（RCF-153），本 repo 屬「關」的那 2 個之一，**不可據此推論其他 repo**。
-> 🔴 **本機 Vercel 憑證已於 2026-08-15～08-22 間消失**（`No existing credentials found`）：本 repo 無 auto-deploy 兜底 ⇒ **目前無可用部署路徑，須待 Tim `npx vercel login`**（HQ tasks P3）。
+> ✅ **憑證已於 2026-08-23 由 Tim 重新登入復原**（`npx.cmd vercel login`；`Active team: shoppy09-2874s-projects`，**不需 `--scope`**）⇒ CLI 路徑恢復可用。⛔ **PowerShell 一律打 `npx.cmd`**（`npx` 會被 ExecutionPolicy 擋在 `npx.ps1`，回 `UnauthorizedAccess`；Bash 不受影響。IMP-112）。
 **步驟 1 提醒**：「更新本文件最近修改記錄」= 更新本 CLAUDE.md 的「最近修改記錄」表格。
 
 > 未完成收尾七件事 = 任務未完成。未 push = 儀表板看不到。
