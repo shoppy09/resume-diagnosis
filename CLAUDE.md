@@ -11,8 +11,14 @@
 ## 技術架構
 - Framework：Next.js（版本注意：API 與慣例可能與舊版不同，修改前先讀 AGENTS.md）
 - 部署：Vercel
-- 正式網址：https://diagnose.careerssl.com（canonical；`resume-diagnosis.vercel.app` 為 Vercel fallback，對外一律用 canonical）
-- 官網入口：https://www.careerssl.com/#ai-tool（2026-08-10 更正：原記 `tzlth-website.vercel.app` 已 301 至 www）
+- ⛔ **2026-09-09 technical retirement 完成：本專案已成為 308 轉址殼，無對外功能**
+  - `diagnose.careerssl.com` 與 `resume-diagnosis.vercel.app` **兩域皆 308**（`vercel.json` `redirects` 為專案級非網域級）
+  - `/privacy` → `www.careerssl.com/privacy.html`（⚠️ 目標**必須帶 `.html`**：`/privacy` 實測 404）
+  - `/burnout` 與 `/(.*)` → `www.careerssl.com/#quiz`
+  - ⛔ **不刪專案、不移除網域**：4 則 Threads 存量貼文＋≥6 篇 FB/IG 已發布貼文首則留言仍指向本站，刪除會使它們 404（Tim 2026-09-04 裁決不動存量貼文）
+  - ⚠️ **`vercel.json` 不接受自訂頂層鍵**（`_retirement_note` 被 schema 拒絕、部署直接失敗）⇒ WHY 只能寫在本檔與 commit message
+  - ⚠️ `GEMINI_API_KEY` 仍在本專案 Vercel、已零消費者：**刻意暫留**保回退零阻力，建議 2026-10-16 後由 Tim 刪除
+- ~~官網入口 `www.careerssl.com/#ai-tool`~~ ⛔ **該錨點 2026-08-13 退場時已隨整段 70 行移除**（2026-09-09 實測官網 `id="ai-tool"` 零命中）⇒ 本列原內容 stale 27 天，已更正
 
 ## 商業邏輯
 1. 使用者輸入履歷 → AI 診斷 → 給出建議
@@ -42,6 +48,7 @@
 
 | 日期 | 修改內容 | 執行視窗 | 狀態 |
 |------|---------|---------|------|
+| 2026-09-09 | ⛔ **technical retirement 完成：加 308 轉址三條，本專案成為轉址殼**（tzlth-hq `批次:B5`／`roadmap-diagnosis.md` §二，Tim「執行」＋6 輪 rigor gate）：`/privacy`→官網 `privacy.html`、`/burnout` 與 `/(.*)`→官網 `#quiz`，全 `permanent: true`（308）。**驗收：兩域 × 四路徑 8/8 全 308 且 destination 正確**。🔴 **部署攔下一個查照沒抓到的錯**：我在 `vercel.json` 加了 `_retirement_note` 自訂鍵記錄 WHY——**Vercel schema 拒絕自訂頂層鍵，部署直接失敗**（`should NOT have additional property`）。⇒ 本專案的 `inventory.json` 慣例（`_` 前綴自訂欄位）**不適用於平台 schema 驗證的設定檔**；WHY 改寫在本檔與 commit message。🔴 **另一個 assert 攔下的錯**：加 redirects 時錨點寫 `  "headers": [`（2 空格），但巢狀的 6 空格版**內含它為子字串** ⇒ 命中 2 次、assert 擋下；改用含換行的錨點。⚠️ 目標 URL 經實測修正：官網 `/privacy` **404**、`/privacy.html` **200** ⇒ 若照 roadmap 原文寫 `/privacy` 會製造新 404。 | 總部視窗 | ✅ |
 | 2026-08-10 | **2 個對外預約 CTA 改指 canonical + 3 處 stale URL 順修（HQ tasks L139，commit `793dd8f`）**：`UsageGate.tsx:152`／`DiagnosisReport.tsx:491` 原指 `my-booking-system.onrender.com`（退場中的 Render 重複實例，當日已被抽 5 把 env → 客戶能送出預約但不寄確認信/不發 LINE/不建 GCal/Tim 收不到通知＝**靜默失敗**；09-15 評估 suspend 後直接 503）→ 改 `www.careerssl.com/booking?source=diagnosis-{usagegate,report}`。順修：分享網址 ×2（`UsageGate:44`／`DiagnosisReport:166`）→ `diagnose.careerssl.com/`；main_site CTA（`DiagnosisReport:542`）→ `www.careerssl.com`（原 301 多一跳）。**根因＝兩次清掃皆漏**：官網 `0cae3fa`(04-21) find-replace 只掃官網 repo；本 repo `d6a4c09`(05-19) 搜尋鍵為前一代值 `booking.careerssl.com`、掃不到更早的 onrender。**`?source=` 刻意不用 `utm_*`**（與預約同網域共用 roll-up `G-TK8D1DX7MJ`，mid-funnel utm 會覆寫流量來源、污染端到端漏斗歸因）。GA4 事件與 CTA 文案未動。驗證：`dev/deploy-verify/SYS-03-2026-08-10.md`（bundle 0 殘留／UsageGate 實際渲染 E2E 桌機+手機 375×812／落地頁導航含 `page_location`）| 總部視窗 | ✅ |
 | 2026-07-02 | 收尾規則指針化（RCF-120 D6）：舊「收尾四/五件事」清單 → 總部 CLAUDE.md 收尾七件事指針式（部署特例保留在地）；消除與主檔的版本漂移 | 總部視窗 | ✅ |
 | 2026-04-19 | 新增 /burnout 職業倦怠快測路由（app/burnout/page.tsx）+ 診斷結果頁 burnout CTA + analytics.ts 新增 burnout_completed 事件 | 總部視窗 | ✅ |

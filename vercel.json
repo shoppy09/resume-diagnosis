@@ -2,7 +2,6 @@
   "buildCommand": "next build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "_retirement_note": "2026-09-09 technical retirement（tzlth-hq roadmap-diagnosis.md §二 / tasks 批次:B5）：AI 履歷診斷 2026-08-13 裁決退場，本專案自此僅作為 308 轉址殼。⛔ 不刪專案、不移除網域——4 則 Threads 存量貼文＋≥6 篇 FB/IG 已發布貼文首則留言仍指向本站，刪除會使它們變成 404/DNS 失敗（Tim 2026-09-04 裁決不動存量貼文）。⚠️ redirects 為專案級非網域級 ⇒ 同時涵蓋 diagnose.careerssl.com 與 resume-diagnosis.vercel.app。",
   "redirects": [
     { "source": "/privacy", "destination": "https://www.careerssl.com/privacy.html", "permanent": true },
     { "source": "/burnout", "destination": "https://www.careerssl.com/#quiz", "permanent": true },
