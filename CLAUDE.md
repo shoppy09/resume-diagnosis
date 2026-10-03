@@ -3,10 +3,11 @@
 # AI 履歷診斷工具 - 操作規則
 
 ## 系統定位
-這是職涯停看聽的核心產品工具。透過 AI 幫助求職者診斷履歷問題，免費使用 2 次，建立信任後導流至付費諮詢。
+⛔ **已退役（2026-08-13 決議、2026-09-09 technical retirement）**：本專案現在只是 **308 轉址殼**——兩個網域的所有路徑（含 `/api/*`，GET／POST 皆然）都轉到官網。保留它的唯一理由是存量貼文連結不要 404（2026-10-03 更正；退役後全貌與殘留面見 tzlth-hq `projects/SYS-03-ai-resume.md`）。
+> 原定位（歷史）：AI 履歷診斷工具，免費 2 次後導流付費諮詢。
 
 ## 角色說明
-你是這個 Next.js 應用的開發維護者。負責確保診斷功能正常、使用流程順暢、並協助建立使用追蹤機制。
+維護轉址殼：確保 `vercel.json` 三條 redirect 持續生效。⛔ 不恢復功能、不新增導流（恢復＝Tim 裁決）。`app/`、`components/`、`lib/` 的程式碼仍在 repo，但線上**任何路徑都到不了**（轉址在函式執行前就發生）。
 
 ## 技術架構
 - Framework：Next.js（版本注意：API 與慣例可能與舊版不同，修改前先讀 AGENTS.md）
@@ -20,15 +21,14 @@
   - ⚠️ `GEMINI_API_KEY` 仍在本專案 Vercel、已零消費者：**刻意暫留**保回退零阻力，建議 2026-10-16 後由 Tim 刪除
 - ~~官網入口 `www.careerssl.com/#ai-tool`~~ ⛔ **該錨點 2026-08-13 退場時已隨整段 70 行移除**（2026-09-09 實測官網 `id="ai-tool"` 零命中）⇒ 本列原內容 stale 27 天，已更正
 
-## 商業邏輯
-1. 使用者輸入履歷 → AI 診斷 → 給出建議
-2. 免費 2 次：建立信任
-3. 第 3 次起：導購付費諮詢服務
+## 商業邏輯（⛔ 歷史，已隨退役終止）
+~~1. 使用者輸入履歷 → AI 診斷 → 給出建議／2. 免費 2 次：建立信任／3. 第 3 次起：導購付費諮詢服務~~
 
 ## 待辦事項
 - [x] 建立使用次數追蹤機制 → GA4 已啟用（G-DG6PL8E1BG），scripts/fetch-ga4-weekly.py 自動拉取 ✅ 2026-04-14
-- [ ] 追蹤免費→付費轉換率（upsell_clicked 事件已追蹤，等待用戶觸發）
-- [ ] 考慮第三次診斷的付費機制
+- ~~[ ] 追蹤免費→付費轉換率~~ ⛔ 隨退役取消
+- ~~[ ] 考慮第三次診斷的付費機制~~ ⛔ 隨退役取消
+> 2026-10-03：本 repo 不再維護待辦清單；殘留面的拆除條件見 HQ 說明書 §C
 
 ---
 ## ⚡ 跨視窗同步協議（最高優先規則）
@@ -48,6 +48,7 @@
 
 | 日期 | 修改內容 | 執行視窗 | 狀態 |
 |------|---------|---------|------|
+| 2026-10-03 | 【DEV】**退役後文件對齊（tzlth-hq 說明書九章化，RCF-187 第 8 份）**：系統定位／角色／商業邏輯／待辦／HQ 連結 5 節改為退役後現況；修改記錄改雙層制。全文見 `CLAUDE-archive-2026-10.md` | tzlth-hq | ✅ |
 | 2026-09-24 | 【DEV】新增 `.gitattributes`：文字檔一律以 LF 存入 repo、二進位檔明列不轉換（總部批次:B28／RCF-198 統一推送）。本 repo renormalize 零檔變動（index 原本即全為 LF）；零程式碼改動 | tzlth-hq（批次:B28） | ✅ |
 | 2026-09-09 | ⛔ **technical retirement 完成：加 308 轉址三條，本專案成為轉址殼**（tzlth-hq `批次:B5`／`roadmap-diagnosis.md` §二，Tim「執行」＋6 輪 rigor gate）：`/privacy`→官網 `privacy.html`、`/burnout` 與 `/(.*)`→官網 `#quiz`，全 `permanent: true`（308）。**驗收：兩域 × 四路徑 8/8 全 308 且 destination 正確**。🔴 **部署攔下一個查照沒抓到的錯**：我在 `vercel.json` 加了 `_retirement_note` 自訂鍵記錄 WHY——**Vercel schema 拒絕自訂頂層鍵，部署直接失敗**（`should NOT have additional property`）。⇒ 本專案的 `inventory.json` 慣例（`_` 前綴自訂欄位）**不適用於平台 schema 驗證的設定檔**；WHY 改寫在本檔與 commit message。🔴 **另一個 assert 攔下的錯**：加 redirects 時錨點寫 `  "headers": [`（2 空格），但巢狀的 6 空格版**內含它為子字串** ⇒ 命中 2 次、assert 擋下；改用含換行的錨點。⚠️ 目標 URL 經實測修正：官網 `/privacy` **404**、`/privacy.html` **200** ⇒ 若照 roadmap 原文寫 `/privacy` 會製造新 404。 | 總部視窗 | ✅ |
 | 2026-08-10 | **2 個對外預約 CTA 改指 canonical + 3 處 stale URL 順修（HQ tasks L139，commit `793dd8f`）**：`UsageGate.tsx:152`／`DiagnosisReport.tsx:491` 原指 `my-booking-system.onrender.com`（退場中的 Render 重複實例，當日已被抽 5 把 env → 客戶能送出預約但不寄確認信/不發 LINE/不建 GCal/Tim 收不到通知＝**靜默失敗**；09-15 評估 suspend 後直接 503）→ 改 `www.careerssl.com/booking?source=diagnosis-{usagegate,report}`。順修：分享網址 ×2（`UsageGate:44`／`DiagnosisReport:166`）→ `diagnose.careerssl.com/`；main_site CTA（`DiagnosisReport:542`）→ `www.careerssl.com`（原 301 多一跳）。**根因＝兩次清掃皆漏**：官網 `0cae3fa`(04-21) find-replace 只掃官網 repo；本 repo `d6a4c09`(05-19) 搜尋鍵為前一代值 `booking.careerssl.com`、掃不到更早的 onrender。**`?source=` 刻意不用 `utm_*`**（與預約同網域共用 roll-up `G-TK8D1DX7MJ`，mid-funnel utm 會覆寫流量來源、污染端到端漏斗歸因）。GA4 事件與 CTA 文案未動。驗證：`dev/deploy-verify/SYS-03-2026-08-10.md`（bundle 0 殘留／UsageGate 實際渲染 E2E 桌機+手機 375×812／落地頁導航含 `page_location`）| 總部視窗 | ✅ |
@@ -64,7 +65,7 @@
 ## 總部連結（TZLTH-HQ）
 - 系統代號：SYS-03
 - 總部路徑：C:\Users\USER\Desktop\tzlth-hq
-- HQ 角色：產品變現漏斗的頂端。免費工具建立信任，是諮詢收入的重要引流來源。
-- 存檔規定：目前無追蹤機制，建立後每週記錄一次使用數據（觸發事件：週五統計）
-- 拉取欄位：使用追蹤檔案（待建立）、最後程式碼修改時間（確認系統有無更新）
+- HQ 角色：⛔ 已退役（inventory status＝`retired`）；只承接存量貼文連結
+- 存檔規定：無（A-36 GA4 週報自 2026-09-09 停查診斷段）
+- 拉取欄位：`curl -sI https://diagnose.careerssl.com/` 應回 308 → `www.careerssl.com/#quiz`（轉址仍生效＝正常）
 ---
