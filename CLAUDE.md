@@ -9,6 +9,8 @@
 ## 角色說明
 維護轉址殼：確保 `vercel.json` 三條 redirect 持續生效。⛔ 不恢復功能、不新增導流（恢復＝Tim 裁決）。`app/`、`components/`、`lib/` 的程式碼仍在 repo，但線上**任何路徑都到不了**（轉址在函式執行前就發生）。
 
+⛔ **GitHub repo 自 2026-10-29 起封存（唯讀，tzlth-hq 批次:B72／RCF-279）**：要改轉址規則，先解除封存 `gh api -X PATCH repos/shoppy09/resume-diagnosis -F archived=false`，改完、部署、驗證後再封存回去（`-F archived=true`）。封存不影響 Vercel 專案、網域與現行 308 轉址。
+
 ## 技術架構
 - Framework：Next.js（版本注意：API 與慣例可能與舊版不同，修改前先讀 AGENTS.md）
 - 部署：Vercel
